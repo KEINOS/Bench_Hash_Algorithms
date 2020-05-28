@@ -1,0 +1,46 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Pull the Docker base-images
+      run: |
+        docker pull php:5-cli-alpine
+        docker pull php:7.0-cli-alpine
+        docker pull php:7.1-cli-alpine
+        docker pull php:7.2-cli-alpine
+        docker pull php:7.3-cli-alpine
+        docker pull php:7.4-cli-alpine
+        docker pull akondas/php:8.0-cli-alpine
+        docker pull keinos/php8-jit:latest
+    - name: Build the Docker images
+      run: |
+        docker build --tag bench:php5 --build-arg BASE_IMAGE=php:5-cli-alpine　./
+        docker build --tag bench:php7.0 --build-arg BASE_IMAGE=php:7.0-cli-alpine　./
+        docker build --tag bench:php7.1 --build-arg BASE_IMAGE=php:7.1-cli-alpine　./
+        docker build --tag bench:php7.2 --build-arg BASE_IMAGE=php:7.2-cli-alpine　./
+        docker build --tag bench:php7.3 --build-arg BASE_IMAGE=php:7.3-cli-alpine　./
+        docker build --tag bench:php7.4 --build-arg BASE_IMAGE=php:7.4-cli-alpine　./
+        docker build --tag bench:php8.0 --build-arg BASE_IMAGE=akondas/php:8.0-cli-alpine　./
+        docker build --tag bench:php8.0jit --build-arg BASE_IMAGE=keinos/php8-jit:latest　./
+    - name: Run benchmark
+      run: |
+        docker run --rm bench:php5
+        docker run --rm bench:php7.0
+        docker run --rm bench:php7.1
+        docker run --rm bench:php7.2
+        docker run --rm bench:php7.3
+        docker run --rm bench:php7.4
+        docker run --rm bench:php8.0
+        docker run --rm bench:php8.0jit
